@@ -1,0 +1,37 @@
+{
+  "generated_at": "2026-02-24T10:30:00+00:00",
+  "period": {
+    "start": "2026-02-17",
+    "end": "2026-02-24"
+  },
+  "web_engagement": {
+    "total_views": 1077,
+    "total_visitors": 782,
+    "top_essay": "How We Orchestrate Eight Organs"
+  },
+  "github_activity": {
+    "total_commits": 45,
+    "total_prs": 7,
+    "total_releases": 2,
+    "organ_breakdown": {
+      "I": {"commits": 5, "prs": 1, "releases": 0},
+      "II": {"commits": 8, "prs": 2, "releases": 1},
+      "III": {"commits": 12, "prs": 1, "releases": 1},
+      "IV": {"commits": 10, "prs": 2, "releases": 0},
+      "V": {"commits": 6, "prs": 1, "releases": 0},
+      "VI": {"commits": 2, "prs": 0, "releases": 0},
+      "VII": {"commits": 1, "prs": 0, "releases": 0},
+      "META": {"commits": 1, "prs": 0, "releases": 0}
+    }
+  },
+  "alerts": [
+    {
+      "rule": "github_stall",
+      "description": "System-wide commits dropped below minimum threshold",
+      "severity": "warning",
+      "current_value": 0,
+      "threshold": 5.0,
+      "triggered_at": "2026-02-24T10:30:00+00:00"
+    }
+  ]
+}

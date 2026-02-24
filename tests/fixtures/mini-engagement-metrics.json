@@ -1,0 +1,33 @@
+{
+  "generated_at": "2026-02-24T10:30:00+00:00",
+  "period": {
+    "start": "2026-02-17",
+    "end": "2026-02-24"
+  },
+  "site_totals": {
+    "page_views": 1077,
+    "unique_visitors": 782,
+    "referrer_count": 12
+  },
+  "pages": [
+    {
+      "path": "/essays/how-we-orchestrate/",
+      "views": 245,
+      "visitors": 198
+    },
+    {
+      "path": "/essays/ai-conductor-methodology/",
+      "views": 189,
+      "visitors": 156
+    },
+    {
+      "path": "/essays/building-in-public/",
+      "views": 134,
+      "visitors": 112
+    }
+  ],
+  "trends": {
+    "views_delta_pct": 15.3,
+    "visitors_delta_pct": 8.7
+  }
+}

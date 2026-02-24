@@ -1,0 +1,26 @@
+[
+  {
+    "title": "Why Multi-Repo Architectures Fail",
+    "url": "https://example.com/multi-repo-fail",
+    "source_feed": "architecture-weekly",
+    "matched_collections": ["governance", "infrastructure"],
+    "score": 0.72,
+    "surfaced_at": "2026-02-23T14:00:00+00:00"
+  },
+  {
+    "title": "The Art of Systems Thinking",
+    "url": "https://example.com/systems-thinking",
+    "source_feed": "methodology-digest",
+    "matched_collections": ["methodology", "creative-practice"],
+    "score": 0.55,
+    "surfaced_at": "2026-02-22T10:00:00+00:00"
+  },
+  {
+    "title": "Irrelevant Clickbait Article",
+    "url": "https://example.com/clickbait",
+    "source_feed": "random-feed",
+    "matched_collections": [],
+    "score": 0.15,
+    "surfaced_at": "2026-02-21T08:00:00+00:00"
+  }
+]

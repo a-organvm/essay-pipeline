@@ -1,0 +1,176 @@
+{
+  "generated_at": "2026-02-24T11:46:04.788055+00:00",
+  "pipeline_version": "0.2.0",
+  "total_suggestions": 12,
+  "suggestions": [
+    {
+      "type": "tag-gap",
+      "title": "Exploring Generative Music: Untapped Perspectives in the ORGANVM System",
+      "rationale": "Tag 'generative-music' appears in only 1 essay(s). Preferred tags should have broader coverage.",
+      "suggested_tags": [
+        "generative-music"
+      ],
+      "suggested_category": "case-study",
+      "priority": "medium",
+      "source_data": {
+        "tag": "generative-music",
+        "current_count": 1
+      }
+    },
+    {
+      "type": "tag-gap",
+      "title": "Exploring Generative Art: Untapped Perspectives in the ORGANVM System",
+      "rationale": "Tag 'generative-art' appears in only 0 essay(s). Preferred tags should have broader coverage.",
+      "suggested_tags": [
+        "generative-art"
+      ],
+      "suggested_category": "case-study",
+      "priority": "medium",
+      "source_data": {
+        "tag": "generative-art",
+        "current_count": 0
+      }
+    },
+    {
+      "type": "tag-gap",
+      "title": "Exploring Game Design: Untapped Perspectives in the ORGANVM System",
+      "rationale": "Tag 'game-design' appears in only 0 essay(s). Preferred tags should have broader coverage.",
+      "suggested_tags": [
+        "game-design"
+      ],
+      "suggested_category": "case-study",
+      "priority": "medium",
+      "source_data": {
+        "tag": "game-design",
+        "current_count": 0
+      }
+    },
+    {
+      "type": "tag-gap",
+      "title": "Exploring Organ Iv: Untapped Perspectives in the ORGANVM System",
+      "rationale": "Tag 'organ-iv' appears in only 0 essay(s). Preferred tags should have broader coverage.",
+      "suggested_tags": [
+        "organ-iv"
+      ],
+      "suggested_category": "case-study",
+      "priority": "medium",
+      "source_data": {
+        "tag": "organ-iv",
+        "current_count": 0
+      }
+    },
+    {
+      "type": "tag-gap",
+      "title": "Exploring Organ V: Untapped Perspectives in the ORGANVM System",
+      "rationale": "Tag 'organ-v' appears in only 0 essay(s). Preferred tags should have broader coverage.",
+      "suggested_tags": [
+        "organ-v"
+      ],
+      "suggested_category": "case-study",
+      "priority": "medium",
+      "source_data": {
+        "tag": "organ-v",
+        "current_count": 0
+      }
+    },
+    {
+      "type": "tag-gap",
+      "title": "Exploring Organ Vi: Untapped Perspectives in the ORGANVM System",
+      "rationale": "Tag 'organ-vi' appears in only 0 essay(s). Preferred tags should have broader coverage.",
+      "suggested_tags": [
+        "organ-vi"
+      ],
+      "suggested_category": "case-study",
+      "priority": "medium",
+      "source_data": {
+        "tag": "organ-vi",
+        "current_count": 0
+      }
+    },
+    {
+      "type": "tag-gap",
+      "title": "Exploring Organ Vii: Untapped Perspectives in the ORGANVM System",
+      "rationale": "Tag 'organ-vii' appears in only 0 essay(s). Preferred tags should have broader coverage.",
+      "suggested_tags": [
+        "organ-vii"
+      ],
+      "suggested_category": "case-study",
+      "priority": "medium",
+      "source_data": {
+        "tag": "organ-vii",
+        "current_count": 0
+      }
+    },
+    {
+      "type": "tag-gap",
+      "title": "Exploring Frameworks: Untapped Perspectives in the ORGANVM System",
+      "rationale": "Tag 'frameworks' appears in only 1 essay(s). Preferred tags should have broader coverage.",
+      "suggested_tags": [
+        "frameworks"
+      ],
+      "suggested_category": "case-study",
+      "priority": "medium",
+      "source_data": {
+        "tag": "frameworks",
+        "current_count": 1
+      }
+    },
+    {
+      "type": "tag-gap",
+      "title": "Exploring Self Assessment: Untapped Perspectives in the ORGANVM System",
+      "rationale": "Tag 'self-assessment' appears in only 1 essay(s). Preferred tags should have broader coverage.",
+      "suggested_tags": [
+        "self-assessment"
+      ],
+      "suggested_category": "case-study",
+      "priority": "medium",
+      "source_data": {
+        "tag": "self-assessment",
+        "current_count": 1
+      }
+    },
+    {
+      "type": "tag-gap",
+      "title": "Exploring Anti Patterns: Untapped Perspectives in the ORGANVM System",
+      "rationale": "Tag 'anti-patterns' appears in only 1 essay(s). Preferred tags should have broader coverage.",
+      "suggested_tags": [
+        "anti-patterns"
+      ],
+      "suggested_category": "case-study",
+      "priority": "medium",
+      "source_data": {
+        "tag": "anti-patterns",
+        "current_count": 1
+      }
+    },
+    {
+      "type": "tag-gap",
+      "title": "Exploring Operational Cadence: Untapped Perspectives in the ORGANVM System",
+      "rationale": "Tag 'operational-cadence' appears in only 1 essay(s). Preferred tags should have broader coverage.",
+      "suggested_tags": [
+        "operational-cadence"
+      ],
+      "suggested_category": "case-study",
+      "priority": "medium",
+      "source_data": {
+        "tag": "operational-cadence",
+        "current_count": 1
+      }
+    },
+    {
+      "type": "cross-ref-gap",
+      "title": "Follow-up: Connecting 'Provenance as Practice: Tracking 2,012 Files Across Eight Organs' to the Wider System",
+      "rationale": "Essay '2026-02-13-provenance-as-practice.md' has no cross-organ references. A follow-up could connect it to other ORGANVM organs.",
+      "suggested_tags": [
+        "cross-organ",
+        "governance"
+      ],
+      "suggested_category": "meta-system",
+      "priority": "low",
+      "source_data": {
+        "filename": "2026-02-13-provenance-as-practice.md",
+        "title": "Provenance as Practice: Tracking 2,012 Files Across Eight Organs"
+      }
+    }
+  ]
+}

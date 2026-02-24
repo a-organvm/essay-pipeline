@@ -1,0 +1,74 @@
+{
+  "version": "1.1",
+  "updated": "2026-02-24",
+  "generated_by": "essay-pipeline indexer v0.1.0",
+  "total_essays": 5,
+  "total_words": 15000,
+  "categories": {
+    "meta-system": 3,
+    "case-study": 1,
+    "guide": 1
+  },
+  "tag_frequency": {
+    "governance": 3,
+    "methodology": 2,
+    "creative-practice": 2,
+    "infrastructure": 1,
+    "orchestration": 1,
+    "portfolio": 1,
+    "game-design": 1,
+    "organ-ii": 1
+  },
+  "essays": [
+    {
+      "filename": "2026-02-10-how-we-orchestrate.md",
+      "title": "How We Orchestrate Eight Organs",
+      "date": "2026-02-10",
+      "category": "meta-system",
+      "tags": ["orchestration", "governance", "infrastructure"],
+      "word_count": 5000,
+      "reading_time": "20 min",
+      "portfolio_relevance": "CRITICAL"
+    },
+    {
+      "filename": "2026-02-11-ai-conductor.md",
+      "title": "AI-Conductor Methodology",
+      "date": "2026-02-11",
+      "category": "meta-system",
+      "tags": ["methodology", "governance"],
+      "word_count": 3500,
+      "reading_time": "14 min",
+      "portfolio_relevance": "CRITICAL"
+    },
+    {
+      "filename": "2026-02-12-game-case-study.md",
+      "title": "Aetheria RPG Post-Mortem",
+      "date": "2026-02-12",
+      "category": "case-study",
+      "tags": ["game-design", "organ-ii", "creative-practice"],
+      "word_count": 3000,
+      "reading_time": "12 min",
+      "portfolio_relevance": "HIGH"
+    },
+    {
+      "filename": "2026-02-13-dependency-graph.md",
+      "title": "The Dependency Graph: No Back-Edges Allowed",
+      "date": "2026-02-13",
+      "category": "guide",
+      "tags": ["governance", "methodology", "creative-practice"],
+      "word_count": 2000,
+      "reading_time": "8 min",
+      "portfolio_relevance": "CRITICAL"
+    },
+    {
+      "filename": "2026-02-14-bootstrap.md",
+      "title": "Bootstrap to Scale",
+      "date": "2026-02-14",
+      "category": "meta-system",
+      "tags": ["portfolio"],
+      "word_count": 1500,
+      "reading_time": "6 min",
+      "portfolio_relevance": "HIGH"
+    }
+  ]
+}

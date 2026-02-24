@@ -4,17 +4,19 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "essay-pipeline"
-version = "0.1.0"
-description = "Frontmatter validator and essay indexer for ORGAN-V public-process"
+version = "0.2.0"
+description = "Frontmatter validator, essay indexer, topic suggester, and sprint narrator for ORGAN-V public-process"
 requires-python = ">=3.10"
 dependencies = ["pyyaml>=6.0"]
 
 [project.optional-dependencies]
-dev = ["pytest>=7.0"]
+dev = ["pytest>=7.0", "ruff>=0.4.0"]
 
 [project.scripts]
 essay-validate = "src.validator:main"
 essay-index = "src.indexer:main"
+essay-suggest = "src.topic_suggester:main"
+essay-narrate = "src.sprint_narrator:main"
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]

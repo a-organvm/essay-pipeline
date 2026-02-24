@@ -1,0 +1,44 @@
+{
+  "version": "1.1",
+  "updated": "2026-02-24",
+  "total": 5,
+  "entries": {
+    "2026-02-10-how-we-orchestrate.md": {
+      "title": "How We Orchestrate Eight Organs",
+      "related_repos": [
+        "organvm-iv-taxis/agentic-titan",
+        "organvm-i-theoria/recursive-engine--generative-entity"
+      ],
+      "tags": ["orchestration", "governance", "infrastructure"],
+      "category": "meta-system"
+    },
+    "2026-02-11-ai-conductor.md": {
+      "title": "AI-Conductor Methodology",
+      "related_repos": [
+        "organvm-iv-taxis/agentic-titan"
+      ],
+      "tags": ["methodology", "governance"],
+      "category": "meta-system"
+    },
+    "2026-02-12-game-case-study.md": {
+      "title": "Aetheria RPG Post-Mortem",
+      "related_repos": [],
+      "tags": ["game-design", "organ-ii", "creative-practice"],
+      "category": "case-study"
+    },
+    "2026-02-13-dependency-graph.md": {
+      "title": "The Dependency Graph: No Back-Edges Allowed",
+      "related_repos": [],
+      "tags": ["governance", "methodology", "creative-practice"],
+      "category": "guide"
+    },
+    "2026-02-14-bootstrap.md": {
+      "title": "Bootstrap to Scale",
+      "related_repos": [
+        "organvm-iii-ergon/public-record-data-scrapper"
+      ],
+      "tags": ["portfolio"],
+      "category": "meta-system"
+    }
+  }
+}
