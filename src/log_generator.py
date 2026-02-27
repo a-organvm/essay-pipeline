@@ -64,14 +64,25 @@ def find_git_repos(workspace: Path, max_depth: int = 2) -> list[Path]:
     return repos
 
 
+def _anchor_date(d: str) -> str:
+    """Append T00:00:00 to bare YYYY-MM-DD dates for consistent git behavior.
+
+    Git interprets bare dates relative to the current time of day, which
+    can exclude commits made earlier today. Anchoring to midnight avoids this.
+    """
+    if re.match(r"^\d{4}-\d{2}-\d{2}$", d):
+        return f"{d}T00:00:00"
+    return d
+
+
 def git_log(repo: Path, since: str, until: str) -> list[dict]:
     """Run git log and return parsed commits."""
     try:
         result = subprocess.run(
             [
                 "git", "log",
-                f"--since={since}",
-                f"--until={until}",
+                f"--since={_anchor_date(since)}",
+                f"--until={_anchor_date(until)}",
                 "--format=%H|%ai|%s",
                 "--no-merges",
             ],
@@ -107,8 +118,8 @@ def git_files_changed(repo: Path, since: str, until: str) -> int:
         result = subprocess.run(
             [
                 "git", "log",
-                f"--since={since}",
-                f"--until={until}",
+                f"--since={_anchor_date(since)}",
+                f"--until={_anchor_date(until)}",
                 "--no-merges",
                 "--diff-filter=ACDMRT",
                 "--name-only",
@@ -416,8 +427,8 @@ def main():
         help="ISO date or 'auto' (default: auto = most recent log date)",
     )
     parser.add_argument(
-        "--until", default=date.today().isoformat(),
-        help="ISO date (default: today)",
+        "--until", default=(date.today() + timedelta(days=1)).isoformat(),
+        help="ISO date, exclusive upper bound (default: tomorrow, i.e. includes today)",
     )
     parser.add_argument(
         "--dry-run", action="store_true",
@@ -440,6 +451,8 @@ def main():
         since = args.since
 
     until = args.until
+    # The log entry date is today (not the exclusive git upper bound)
+    log_date = date.today().isoformat()
 
     # Scan
     activity = scan_workspace(workspace, since, until)
@@ -450,7 +463,7 @@ def main():
         print(json.dumps(build_json_output(activity), indent=2, ensure_ascii=False))
         print()
         print("=== SCAFFOLD ===")
-        print(build_scaffold(activity, until))
+        print(build_scaffold(activity, log_date))
         print()
         print(
             f"Summary: {summary['total_commits']} commits across "
@@ -459,7 +472,7 @@ def main():
         )
     else:
         json_path, scaffold_path = write_outputs(
-            activity, logs_dir, data_dir, until
+            activity, logs_dir, data_dir, log_date
         )
         print(f"Activity JSON: {json_path}")
         print(f"Log scaffold:  {scaffold_path}")
