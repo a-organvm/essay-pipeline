@@ -1,0 +1,80 @@
+name: Weekly Intelligence
+
+on:
+  schedule:
+    - cron: "0 10 * * 1"  # Monday 10:00 UTC
+  repository_dispatch:
+    types: [feeds-updated, metrics-updated]
+  workflow_dispatch:
+
+jobs:
+  intelligence:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+
+    steps:
+      - name: Checkout essay-pipeline
+        uses: actions/checkout@v4
+
+      - name: Checkout editorial-standards
+        uses: actions/checkout@v4
+        with:
+          repository: organvm-v-logos/editorial-standards
+          path: editorial-standards
+
+      - name: Checkout public-process (data only)
+        uses: actions/checkout@v4
+        with:
+          repository: organvm-v-logos/public-process
+          path: public-process
+          sparse-checkout: data/
+
+      - name: Checkout analytics-engine (data only)
+        uses: actions/checkout@v4
+        with:
+          repository: organvm-v-logos/analytics-engine
+          path: analytics-engine
+          sparse-checkout: data/
+
+      - name: Checkout reading-observatory (feeds only)
+        uses: actions/checkout@v4
+        with:
+          repository: organvm-v-logos/reading-observatory
+          path: reading-observatory
+          sparse-checkout: feeds/
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Install dependencies
+        run: pip install -e .
+
+      - name: Generate topic suggestions
+        run: |
+          python -m src.topic_suggester \
+            --essays-index public-process/data/essays-index.json \
+            --xrefs public-process/data/cross-references.json \
+            --tag-governance editorial-standards/schemas/tag-governance.yaml \
+            --category-taxonomy editorial-standards/schemas/category-taxonomy.yaml \
+            --surfaced reading-observatory/feeds/surfaced.json \
+            --output data/topic-suggestions.json
+
+      - name: Generate sprint narrative
+        run: |
+          python -m src.sprint_narrator \
+            --metrics analytics-engine/data/engagement-metrics.json \
+            --report analytics-engine/data/system-engagement-report.json \
+            --index public-process/data/essays-index.json \
+            --calendar public-process/data/publication-calendar.json \
+            --output data/sprint-narrative-draft.md
+
+      - name: Commit updated intelligence
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add data/topic-suggestions.json data/sprint-narrative-draft.md
+          git diff --staged --quiet || git commit -m "chore: update weekly intelligence $(date -u +%Y-%m-%d)"
+          git push

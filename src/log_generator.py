@@ -1,18 +1,28 @@
 """Workspace activity scanner and captain's log scaffolder for ORGAN-V.
 
-Scans git repos across ~/Workspace, produces a JSON activity snapshot
-and scaffolds a captain's log entry pre-filled with real commit data.
+Scans git repos across ~/Workspace (local mode) or GitHub Events API
+(github-api mode) and produces a JSON activity snapshot plus a captain's
+log entry pre-filled with real commit data.
 
-CLI: python -m src.log_generator --workspace ~/Workspace \
-       --logs-dir ../public-process/_logs/ \
-       --data-dir ../public-process/data/
+CLI (local):
+    python -m src.log_generator --workspace ~/Workspace \
+           --logs-dir ../public-process/_logs/ \
+           --data-dir ../public-process/data/
+
+CLI (github-api):
+    python -m src.log_generator --mode github-api \
+           --logs-dir ../public-process/_logs/ \
+           --data-dir ../public-process/data/
 """
 
 import argparse
 import json
+import os
 import re
 import subprocess
 import sys
+import urllib.error
+import urllib.request
 from datetime import date, datetime, timedelta, timezone
 from pathlib import Path
 
@@ -277,6 +287,131 @@ def scan_workspace(
     }
 
 
+# GitHub org name → (organ numeral, organ name)
+ORG_TO_ORGAN: dict[str, tuple[str, str]] = {
+    "ivviiviivvi": ("I", "Theoria"),
+    "omni-dromenon-machina": ("II", "Poiesis"),
+    "labores-profani-crux": ("III", "Ergon"),
+    "organvm-iv-taxis": ("IV", "Taxis"),
+    "organvm-v-logos": ("V", "Logos"),
+    "organvm-vi-koinonia": ("VI", "Koinonia"),
+    "organvm-vii-kerygma": ("VII", "Kerygma"),
+    "meta-organvm": ("META", "Meta"),
+}
+
+DEFAULT_GITHUB_ORGS: list[str] = list(ORG_TO_ORGAN.keys())
+
+
+def _github_api_get(url: str, token: str) -> list | dict:  # allow-secret
+    """Make an authenticated GET request to the GitHub API."""
+    req = urllib.request.Request(url)
+    req.add_header("Authorization", f"Bearer {token}")
+    req.add_header("Accept", "application/vnd.github+json")
+    req.add_header("X-GitHub-Api-Version", "2022-11-28")
+
+    with urllib.request.urlopen(req, timeout=30) as resp:
+        return json.loads(resp.read().decode("utf-8"))
+
+
+def scan_github_orgs(
+    token: str,  # allow-secret
+    orgs: list[str],
+    since: str,
+    until: str,
+) -> dict:
+    """Scan GitHub Events API across orgs and build the activity data structure.
+
+    Same output shape as scan_workspace() so downstream functions
+    (build_scaffold, build_json_output, write_outputs) work unchanged.
+    """
+    since_date = since[:10]  # Normalize to YYYY-MM-DD
+
+    by_organ: dict[str, dict] = {}
+    total_commits = 0
+    total_files = 0
+    repos_active = 0
+    all_commits_flat: list[dict] = []
+    github_links: list[str] = []
+    seen_repos: set[str] = set()
+
+    for org in orgs:
+        organ_info = ORG_TO_ORGAN.get(org)
+        if organ_info is None:
+            continue
+        organ_key, organ_name = organ_info
+
+        try:
+            events = _github_api_get(
+                f"https://api.github.com/orgs/{org}/events?per_page=100",
+                token,
+            )
+            if not isinstance(events, list):
+                events = []
+        except (urllib.error.URLError, urllib.error.HTTPError):
+            continue
+
+        # Group push events by repo
+        repo_commits: dict[str, list[dict]] = {}
+        for event in events:
+            created = event.get("created_at", "")[:10]
+            if created < since_date:
+                continue
+
+            if event.get("type") != "PushEvent":
+                continue
+
+            repo_name = event.get("repo", {}).get("name", "")
+            if "/" in repo_name:
+                repo_name = repo_name.split("/", 1)[1]
+
+            payload = event.get("payload", {})
+            for c in payload.get("commits", []):
+                commit = {
+                    "hash": c.get("sha", "")[:7],
+                    "date": created,
+                    "message": c.get("message", "").split("\n")[0],
+                }
+                repo_commits.setdefault(repo_name, []).append(commit)
+                all_commits_flat.append(commit)
+
+        # Build organ entry
+        for repo_name, commits in repo_commits.items():
+            if repo_name not in seen_repos:
+                repos_active += 1
+                seen_repos.add(repo_name)
+
+            total_commits += len(commits)
+
+            if organ_key not in by_organ:
+                by_organ[organ_key] = {"name": organ_name, "repos": {}}
+
+            by_organ[organ_key]["repos"][repo_name] = {
+                "commits": commits,
+                "files_changed": 0,  # Not available from Events API
+            }
+
+            url = f"https://github.com/{org}/{repo_name}"
+            if url not in github_links:
+                github_links.append(url)
+
+    organs_touched = sorted(by_organ.keys())
+
+    return {
+        "generated": datetime.now(timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ"),
+        "since": since,
+        "until": until,
+        "summary": {
+            "total_commits": total_commits,
+            "repos_active": repos_active,
+            "files_changed": total_files,
+            "organs_touched": organs_touched,
+        },
+        "by_organ": by_organ,
+        "_links": github_links,
+        "_all_commits": all_commits_flat,
+    }
+
+
 def build_json_output(activity: dict) -> dict:
     """Build the JSON output structure (without internal fields)."""
     output = {
@@ -422,9 +557,13 @@ def main():
         description="Scan workspace git activity and scaffold a captain's log entry"
     )
     parser.add_argument(
+        "--mode", choices=["local", "github-api"], default="local",
+        help="Data source: local git repos or GitHub Events API (default: local)",
+    )
+    parser.add_argument(
         "--workspace",
         default=str(Path.home() / "Workspace"),
-        help="Path to workspace root (default: ~/Workspace)",
+        help="Path to workspace root — used in local mode (default: ~/Workspace)",
     )
     parser.add_argument(
         "--logs-dir", required=True,
@@ -448,13 +587,8 @@ def main():
     )
     args = parser.parse_args()
 
-    workspace = Path(args.workspace).expanduser()
     logs_dir = Path(args.logs_dir).expanduser()
     data_dir = Path(args.data_dir).expanduser()
-
-    if not workspace.is_dir():
-        print(f"Error: workspace not found: {workspace}", file=sys.stderr)
-        sys.exit(1)
 
     # Resolve --since
     if args.since == "auto":
@@ -463,11 +597,22 @@ def main():
         since = args.since
 
     until = args.until
-    # The log entry date is today (not the exclusive git upper bound)
     log_date = date.today().isoformat()
 
-    # Scan
-    activity = scan_workspace(workspace, since, until)
+    # Scan via selected mode
+    if args.mode == "github-api":
+        token = os.environ.get("GITHUB_TOKEN", "")  # allow-secret
+        if not token:
+            print("Error: GITHUB_TOKEN not set (required for github-api mode)", file=sys.stderr)
+            sys.exit(1)
+        activity = scan_github_orgs(token, DEFAULT_GITHUB_ORGS, since, until)
+    else:
+        workspace = Path(args.workspace).expanduser()
+        if not workspace.is_dir():
+            print(f"Error: workspace not found: {workspace}", file=sys.stderr)
+            sys.exit(1)
+        activity = scan_workspace(workspace, since, until)
+
     summary = activity["summary"]
 
     if args.dry_run:
