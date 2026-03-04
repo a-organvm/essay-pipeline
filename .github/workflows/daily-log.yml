@@ -20,7 +20,6 @@ jobs:
         with:
           repository: organvm-v-logos/public-process
           path: public-process
-          token: ${{ secrets.CROSS_ORG_DISPATCH_TOKEN }}
 
       - name: Set up Python
         uses: actions/setup-python@v5

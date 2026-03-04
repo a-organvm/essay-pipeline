@@ -37,7 +37,6 @@ jobs:
         with:
           repository: organvm-v-logos/public-process
           path: public-process
-          token: ${{ secrets.CROSS_ORG_DISPATCH_TOKEN }}
 
       - name: Checkout reading-observatory (feeds only)
         uses: actions/checkout@v4
