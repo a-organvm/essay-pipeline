@@ -459,32 +459,21 @@ activity:
 links:{links_yaml}
 ---"""
 
-    # Activity summary line
-    since_display = _format_date_display(activity["since"])
-    organ_count = len(summary["organs_touched"])
-    body = f"""
+    # Précis placeholder
+    body = """
 
-## Workspace Activity
+## Précis
 
-**{summary['total_commits']} commits** across **{summary['repos_active']} repos** in **{organ_count} organs** since {since_display}.
+<!-- 1-2 sentences: the headline of this day. What was the single most important thing? -->
+
+## Descriptive Summary
+
+<!-- Factual narrative of what happened. What was built, fixed, moved, deployed? -->
+
+## Analytical Summary
+
+<!-- What patterns emerged? What does this day reveal about the system's trajectory? -->
 """
-
-    # Per-organ breakdown
-    for organ_key in sorted(by_organ.keys()):
-        organ_data = by_organ[organ_key]
-        organ_name = organ_data["name"]
-        if organ_key == organ_name:
-            body += f"\n### {organ_key}\n"
-        else:
-            body += f"\n### ORGAN {organ_key} — {organ_name}\n"
-
-        for repo_name, repo_data in sorted(organ_data["repos"].items()):
-            commits = repo_data["commits"]
-            count = len(commits)
-            messages = ", ".join(c["message"] for c in commits[:3])
-            if count > 3:
-                messages += f", ... (+{count - 3} more)"
-            body += f"- **{repo_name}** ({count} commits): {messages}\n"
 
     # Polyvocal narrative sections
     body += """
@@ -507,6 +496,34 @@ links:{links_yaml}
 > <!-- Drive and structure. The analytical thread — where this trajectory leads, what the pattern means. -->
 > — *Animus*
 """
+
+    # Workspace Activity section (now at bottom)
+    since_display = _format_date_display(activity["since"])
+    organ_count = len(summary["organs_touched"])
+    body += f"""
+---
+
+## Workspace Activity
+
+**{summary['total_commits']} commits** across **{summary['repos_active']} repos** in **{organ_count} organs** since {since_display}.
+"""
+
+    # Per-organ breakdown
+    for organ_key in sorted(by_organ.keys()):
+        organ_data = by_organ[organ_key]
+        organ_name = organ_data["name"]
+        if organ_key == organ_name:
+            body += f"\n### {organ_key}\n"
+        else:
+            body += f"\n### ORGAN {organ_key} — {organ_name}\n"
+
+        for repo_name, repo_data in sorted(organ_data["repos"].items()):
+            commits = repo_data["commits"]
+            count = len(commits)
+            messages = ", ".join(c["message"] for c in commits[:3])
+            if count > 3:
+                messages += f", ... (+{count - 3} more)"
+            body += f"- **{repo_name}** ({count} commits): {messages}\n"
 
     return frontmatter + body
 

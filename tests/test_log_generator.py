@@ -269,6 +269,24 @@ class TestScaffoldFrontmatter:
         assert "— *Anima*" in scaffold
         assert "— *Animus*" in scaffold
 
+    def test_contains_summary_placeholders(self):
+        activity = self._make_activity()
+        scaffold = build_scaffold(activity, "2026-02-28")
+        assert "## Précis" in scaffold
+        assert "## Descriptive Summary" in scaffold
+        assert "## Analytical Summary" in scaffold
+
+    def test_section_order(self):
+        """Verify sections appear in correct order: Précis → Descriptive → Analytical → Voices → Workspace Activity."""
+        activity = self._make_activity()
+        scaffold = build_scaffold(activity, "2026-02-28")
+        precis_pos = scaffold.index("## Précis")
+        descriptive_pos = scaffold.index("## Descriptive Summary")
+        analytical_pos = scaffold.index("## Analytical Summary")
+        voices_pos = scaffold.index("## The Voices")
+        activity_pos = scaffold.index("## Workspace Activity")
+        assert precis_pos < descriptive_pos < analytical_pos < voices_pos < activity_pos
+
     def test_suggested_tags_in_comment(self):
         activity = self._make_activity()
         scaffold = build_scaffold(activity, "2026-02-28")
@@ -337,7 +355,9 @@ class TestEmptyWorkspace:
         activity = scan_workspace(tmp_path, "2026-01-01", "2026-12-31")
         scaffold = build_scaffold(activity, "2026-02-28")
         assert "---" in scaffold
+        assert "## Précis" in scaffold
         assert "## The Voices" in scaffold
+        assert "## Workspace Activity" in scaffold
 
     def test_empty_json_is_valid(self, tmp_path):
         activity = scan_workspace(tmp_path, "2026-01-01", "2026-12-31")

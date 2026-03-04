@@ -12,6 +12,7 @@ related_repos:
   - organvm-v-logos/editorial-standards
 reading_time: "5 min"
 word_count: 1000
+references: []
 ---
 
 # A Perfectly Valid Test Essay

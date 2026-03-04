@@ -82,6 +82,7 @@ related_repos:
   - organvm-v-logos/editorial-standards
 reading_time: "2 min"
 word_count: 576
+references: []
 ---
 
 # Understanding Recursive Governance in Multi-Organ Systems
