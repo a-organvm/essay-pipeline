@@ -15,7 +15,31 @@ from src.link_checker import (
     extract_urls,
     generate_report,
     check_all,
+    check_local_link,
+    main,
 )
+
+
+class TestCheckLocalLink:
+    def test_valid_link(self, tmp_path):
+        posts_dir = tmp_path / "posts"
+        posts_dir.mkdir()
+        (posts_dir / "2026-03-01-test-slug.md").write_text("...")
+
+        # Valid format
+        assert check_local_link("/essays/cat/test-slug/", posts_dir).status == "ok"
+        assert check_local_link("/essays/cat/test-slug.html", posts_dir).status == "ok"
+
+    def test_invalid_slug(self, tmp_path):
+        posts_dir = tmp_path / "posts"
+        posts_dir.mkdir()
+        assert check_local_link("/essays/cat/missing/", posts_dir).status == "broken"
+
+    def test_invalid_format(self, tmp_path):
+        posts_dir = tmp_path / "posts"
+        posts_dir.mkdir()
+        assert check_local_link("not-an-internal-link", posts_dir).status == "error"
+        assert check_local_link("/too/short", posts_dir).status == "error"
 
 
 # --- Fixtures --------------------------------------------------------------
@@ -469,7 +493,6 @@ See [Site](https://example.com).
         encoding="utf-8",
     )
 
-    from src.link_checker import main
     import sys
 
     original_argv = sys.argv

@@ -10,7 +10,21 @@ from src.indexer import (
     build_publication_calendar,
     extract_essay_data,
     index_all,
+    compute_readability,
 )
+
+
+class TestComputeReadability:
+    def test_basic_scoring(self):
+        text = "This is a simple sentence. It has clear words."
+        score = compute_readability(text)
+        assert 0 <= score <= 100
+        # High score means easy to read
+        assert score > 60
+
+    def test_empty_text(self):
+        assert compute_readability("") == 0.0
+
 
 FIXTURES = Path(__file__).parent / "fixtures"
 
@@ -25,6 +39,7 @@ class TestExtractEssayData:
             == "A Perfectly Valid Test Essay for the Pipeline"
         )
         assert data["computed_word_count"] > 0
+        assert "readability_score" in data
 
     def test_no_frontmatter_returns_none(self, tmp_path):
         p = tmp_path / "bare.md"

@@ -256,6 +256,29 @@ def _check_url_inner(
 # --- Full scan -------------------------------------------------------------
 
 
+def check_local_link(url: str, posts_dir: Path) -> UrlResult:
+    """Validate a local internal link against the posts directory."""
+    if not url.startswith("/"):
+        return UrlResult(url=url, status="error", error="invalid internal link format")
+
+    # Normalize: strip .html, leading/trailing slashes
+    path = url.strip("/").replace(".html", "")
+    parts = path.split("/")
+
+    # Expected: ["essays", category, slug]
+    if len(parts) < 3 or parts[0] != "essays":
+        return UrlResult(url=url, status="error", error="not a standard essay path")
+
+    slug = parts[2]
+
+    # Search posts_dir for *-slug.md
+    matches = list(posts_dir.glob(f"*-{slug}.md"))
+    if len(matches) > 0:
+        return UrlResult(url=url, status="ok")
+    else:
+        return UrlResult(url=url, status="broken", error="File Not Found (Local)")
+
+
 def check_all(
     posts_dir: Path,
     logs_dir: Path | None = None,
@@ -285,19 +308,7 @@ def check_all(
         if entry.url not in unique_urls:
             unique_urls[entry.url] = entry
 
-    if internal_only:
-        # Just validate URL syntax — no HTTP
-        for url in unique_urls:
-            parsed = urlparse(url)
-            if parsed.scheme and parsed.netloc:
-                report.results[url] = UrlResult(url=url, status="ok")
-            else:
-                report.results[url] = UrlResult(
-                    url=url, status="error", error="invalid URL"
-                )
-        return report
-
-    # Check each unique URL
+    # Create client for external checks
     with httpx.Client(
         headers=_DEFAULT_HEADERS,
         follow_redirects=False,
@@ -305,9 +316,26 @@ def check_all(
     ) as client:
         total = len(unique_urls)
         for i, url in enumerate(unique_urls, start=1):
-            print(f"  [{i}/{total}] {url[:80]}...", file=sys.stderr, flush=True)
-            result = check_url(url, timeout=timeout, retries=retries, client=client)
-            report.results[url] = result
+            is_external = url.startswith("http")
+
+            if is_external:
+                if internal_only:
+                    parsed = urlparse(url)
+                    if parsed.scheme and parsed.netloc:
+                        report.results[url] = UrlResult(url=url, status="ok")
+                    else:
+                        report.results[url] = UrlResult(
+                            url=url, status="error", error="invalid URL"
+                        )
+                else:
+                    print(f"  [{i}/{total}] {url[:80]}...", file=sys.stderr, flush=True)
+                    result = check_url(
+                        url, timeout=timeout, retries=retries, client=client
+                    )
+                    report.results[url] = result
+            else:
+                # Internal local link
+                report.results[url] = check_local_link(url, posts_dir)
 
     return report
 

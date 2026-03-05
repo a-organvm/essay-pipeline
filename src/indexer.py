@@ -18,6 +18,29 @@ from pathlib import Path
 import yaml
 
 
+def compute_readability(text: str) -> float:
+    """Compute a simple Flesch Reading Ease score.
+
+    Formula: 206.835 - 1.015 * (total_words / total_sentences) - 84.6 * (total_syllables / total_words)
+    Approximation for syllables: average 1.5 syllables per word for simplicity.
+    """
+    words = [w for w in text.split() if w.strip()]
+    if not words:
+        return 0.0
+
+    # Simple sentence detection
+    sentences = re.split(r"[.!?]+", text)
+    sentences = [s for s in sentences if s.strip()]
+    if not sentences:
+        sentences = [text]
+
+    avg_sentence_length = len(words) / len(sentences)
+    avg_syllables_per_word = 1.5
+
+    score = 206.835 - (1.015 * avg_sentence_length) - (84.6 * avg_syllables_per_word)
+    return round(max(0.0, min(100.0, score)), 1)
+
+
 def extract_essay_data(filepath: Path) -> dict | None:
     """Extract frontmatter and compute body word count from a Markdown file."""
     text = filepath.read_text(encoding="utf-8")
@@ -38,10 +61,13 @@ def extract_essay_data(filepath: Path) -> dict | None:
     clean = re.sub(r"\s+", " ", clean).strip()
     word_count = len(clean.split()) if clean else 0
 
+    readability = compute_readability(clean)
+
     return {
         "filename": filepath.name,
         "frontmatter": fm,
         "computed_word_count": word_count,
+        "readability_score": readability,
     }
 
 
@@ -60,6 +86,7 @@ def build_essays_index(essays: list[dict]) -> dict:
             tags[tag] += 1
         wc = e["computed_word_count"]
         total_words += wc
+        rs = e["readability_score"]
         entries.append(
             {
                 "filename": e["filename"],
@@ -68,6 +95,7 @@ def build_essays_index(essays: list[dict]) -> dict:
                 "category": cat,
                 "tags": fm.get("tags", []),
                 "word_count": wc,
+                "readability_score": rs,
                 "reading_time": fm.get("reading_time", ""),
                 "portfolio_relevance": fm.get("portfolio_relevance", ""),
             }
