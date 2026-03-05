@@ -12,6 +12,8 @@ related_repos:
   - organvm-v-logos/editorial-standards
 reading_time: "5 min"
 word_count: 1000
+word_count_policy: external
+word_count_override_reason: "This fixture intentionally keeps a short body while modeling a valid external aggregate word count."
 references: []
 ---
 

@@ -1,8 +1,7 @@
 """Tests for the LLM client abstraction."""
 
-import json
 import os
-from unittest.mock import MagicMock, patch
+from unittest.mock import patch
 
 from src.llm_client import (
     AnthropicClient,
@@ -13,7 +12,6 @@ from src.llm_client import (
     PerplexityClient,
     PRIORITY_ORDER,
     PROVIDERS,
-    _http_post,
     create_client,
 )
 
