@@ -20,6 +20,12 @@ SCHEMA_PATH = str(
     / "schemas"
     / "frontmatter-schema.yaml"
 )
+LOG_SCHEMA_PATH = str(
+    Path(__file__).parent.parent.parent
+    / "editorial-standards"
+    / "schemas"
+    / "log-schema.yaml"
+)
 
 
 class TestValidatorMain:
@@ -48,6 +54,10 @@ class TestValidatorMain:
 
 def get_schema():
     return load_schema(SCHEMA_PATH)
+
+
+def get_log_schema():
+    return load_schema(LOG_SCHEMA_PATH)
 
 
 class TestExtractFrontmatter:
@@ -151,6 +161,53 @@ class TestValidateField:
         }
         errors = validate_field("tags", ["has spaces"], spec)
         assert any("pattern" in e for e in errors)
+
+    def test_object_valid(self):
+        spec = {
+            "type": "object",
+            "required_keys": ["since", "commits"],
+            "properties": {
+                "since": {"type": "string", "pattern": "^\\d{4}-\\d{2}-\\d{2}$"},
+                "commits": {"type": "integer", "min": 0},
+            },
+        }
+        value = {"since": "2026-03-05", "commits": 10}
+        assert validate_field("activity", value, spec) == []
+
+    def test_object_missing_required_key(self):
+        spec = {
+            "type": "object",
+            "required_keys": ["since", "commits"],
+            "properties": {
+                "since": {"type": "string", "pattern": "^\\d{4}-\\d{2}-\\d{2}$"},
+                "commits": {"type": "integer", "min": 0},
+            },
+        }
+        value = {"since": "2026-03-05"}
+        errors = validate_field("activity", value, spec)
+        assert any("missing required key 'commits'" in e for e in errors)
+
+    def test_object_unknown_key_rejected(self):
+        spec = {
+            "type": "object",
+            "properties": {
+                "since": {"type": "string", "pattern": "^\\d{4}-\\d{2}-\\d{2}$"},
+            },
+        }
+        value = {"since": "2026-03-05", "extra": 1}
+        errors = validate_field("activity", value, spec)
+        assert any("unknown key 'extra'" in e for e in errors)
+
+    def test_object_nested_value_validation(self):
+        spec = {
+            "type": "object",
+            "properties": {
+                "commits": {"type": "integer", "min": 0},
+            },
+        }
+        value = {"commits": -1}
+        errors = validate_field("activity", value, spec)
+        assert any("key 'commits'" in e and "below minimum" in e for e in errors)
 
 
 class TestValidateEssay:
@@ -407,3 +464,34 @@ class TestValidateAll:
         shutil.copy(FIXTURES / "valid-essay.md", p)
         errors = validate_all(str(tmp_path), SCHEMA_PATH)
         assert errors == []
+
+
+class TestSchemaStrictness:
+    def test_unknown_field_rejected_for_essay(self, tmp_path):
+        schema = get_schema()
+        text = (FIXTURES / "valid-essay.md").read_text(encoding="utf-8")
+        text = text.replace("references: []", 'references: []\nunexpected_field: "x"')
+        p = tmp_path / "unknown-field-essay.md"
+        p.write_text(text, encoding="utf-8")
+
+        errors = validate_essay(p, schema)
+        assert any("unknown field 'unexpected_field'" in e for e in errors)
+
+    def test_unknown_field_rejected_for_log(self, tmp_path):
+        schema = get_log_schema()
+        p = tmp_path / "unknown-field-log.md"
+        p.write_text(
+            "---\n"
+            "layout: log\n"
+            'title: "Captain Log Test"\n'
+            'date: "2026-03-05"\n'
+            "tags: [testing]\n"
+            "mood: focused\n"
+            "surplus: not-allowed\n"
+            "---\n\n"
+            "Log body.\n",
+            encoding="utf-8",
+        )
+
+        errors = validate_essay(p, schema)
+        assert any("unknown field 'surplus'" in e for e in errors)

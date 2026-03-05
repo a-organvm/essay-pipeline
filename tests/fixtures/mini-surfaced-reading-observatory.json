@@ -1,0 +1,28 @@
+[
+  {
+    "title": "Agentic Engineering Patterns",
+    "url": "https://example.com/agentic-patterns",
+    "author": "Example Author",
+    "published": "2026-03-04T12:00:00+00:00",
+    "summary": "Patterns for deploying agentic workflows in creative systems.",
+    "collection": "ai-human-collaboration",
+    "feed_title": "Example Feed",
+    "relevance_score": 0.74,
+    "matched_terms": ["agentic", "workflow", "systems"],
+    "matched_collections": ["ai-human-collaboration", "systems-thinking"],
+    "surfaced_date": "2026-03-04"
+  },
+  {
+    "title": "Low Signal Entry",
+    "url": "https://example.com/low-signal",
+    "author": "Example Author",
+    "published": "2026-03-03T12:00:00+00:00",
+    "summary": "Low relevance example.",
+    "collection": "creative-practice",
+    "feed_title": "Example Feed",
+    "relevance_score": 0.11,
+    "matched_terms": [],
+    "matched_collections": [],
+    "surfaced_date": "2026-03-03"
+  }
+]

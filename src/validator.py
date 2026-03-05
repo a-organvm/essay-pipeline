@@ -105,6 +105,30 @@ def validate_field(field_name: str, value, spec: dict) -> list[str]:
                     f"item [{i}] '{item}' does not match pattern {item_pattern}"
                 )
 
+    elif field_type == "object":
+        if not isinstance(value, dict):
+            return [f"expected object, got {type(value).__name__}"]
+
+        required_keys = spec.get("required_keys", [])
+        properties = spec.get("properties", {})
+
+        for key in required_keys:
+            if key not in value:
+                errors.append(f"missing required key '{key}'")
+
+        for key, nested_value in value.items():
+            nested_spec = properties.get(key)
+            if properties and nested_spec is None:
+                errors.append(f"unknown key '{key}' is not allowed")
+                continue
+
+            if nested_spec is not None:
+                nested_errors = validate_field(
+                    f"{field_name}.{key}", nested_value, nested_spec
+                )
+                for nested_error in nested_errors:
+                    errors.append(f"key '{key}' — {nested_error}")
+
     return errors
 
 
@@ -119,6 +143,8 @@ def validate_entry(filepath: Path, schema: dict) -> list[str]:
     fm = extract_frontmatter(filepath)
     if fm is None:
         return [f"{filepath.name}: no valid frontmatter found"]
+    if not isinstance(fm, dict):
+        return [f"{filepath.name}: frontmatter must be a key-value mapping"]
 
     errors = []
     required = schema["required_fields"]
@@ -138,6 +164,14 @@ def validate_entry(filepath: Path, schema: dict) -> list[str]:
             field_errors = validate_field(field_name, fm[field_name], spec)
             for err in field_errors:
                 errors.append(f"{filepath.name}: field '{field_name}' — {err}")
+
+    # Reject unknown fields to prevent schema drift.
+    allowed_fields = set(required.keys()) | set(optional.keys())
+    for field_name in sorted(fm.keys()):
+        if field_name not in allowed_fields:
+            errors.append(
+                f"{filepath.name}: unknown field '{field_name}' is not allowed by schema"
+            )
 
     # Cross-field integrity checks for word_count/reading_time coherence
     if (

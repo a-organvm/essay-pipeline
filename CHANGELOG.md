@@ -7,6 +7,18 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+
+- Extended `src/topic_suggester.py` with configurable thresholds/limits (`tag-threshold`, `surfaced-threshold`, `max-suggestions`, `per-type-limit`)
+- Added suggestion ranking pipeline: score normalization, priority buckets, effort estimates, deduplication, per-type balancing, and stable rank assignment
+- Added corpus-aware helpers for tag co-occurrence and companion-tag inference to enrich suggestion payloads
+- Added richer output metadata: `configuration`, `diagnostics`, suggestion mix summary, and per-suggestion structured fields (`id`, `score`, `focus_area`, `priority_reason`, `estimated_effort`, `rank`)
+
+### Changed
+
+- Bumped topic suggester pipeline version from `0.3.0` to `0.4.0`
+- Expanded `tests/test_topic_suggester.py` to cover the full suggestion engine surface (21 tests)
+
 ## [0.2.0] - 2026-02-24
 
 ### Added
