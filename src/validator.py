@@ -21,6 +21,26 @@ import yaml
 from .schema_loader import load_schema
 
 
+def _compute_body_word_count(text: str) -> int:
+    """Compute the essay body word count using the indexer's normalization rules."""
+    if not text.startswith("---"):
+        return 0
+    parts = text.split("---", 2)
+    if len(parts) < 3:
+        return 0
+    body = parts[2].strip()
+    clean = re.sub(r"[#*_`\[\]()>|]", " ", body)
+    clean = re.sub(r"https?://\S+", "", clean)
+    clean = re.sub(r"\s+", " ", clean).strip()
+    return len(clean.split()) if clean else 0
+
+
+def _expected_reading_time(word_count: int) -> str:
+    """Derive canonical reading_time from word_count."""
+    minutes = max(1, round(word_count / 250))
+    return f"{minutes} min"
+
+
 def extract_frontmatter(filepath: Path) -> dict | None:
     """Extract YAML frontmatter from a Markdown file.
 
@@ -112,6 +132,38 @@ def validate_entry(filepath: Path, schema: dict) -> list[str]:
             field_errors = validate_field(field_name, fm[field_name], spec)
             for err in field_errors:
                 errors.append(f"{filepath.name}: field '{field_name}' — {err}")
+
+    # Cross-field integrity checks for word_count/reading_time coherence
+    if isinstance(fm, dict) and isinstance(fm.get("word_count"), int) and not isinstance(fm.get("word_count"), bool):
+        declared_word_count = fm["word_count"]
+        word_count_policy = fm.get("word_count_policy", "computed")
+        if word_count_policy not in {"computed", "external"}:
+            errors.append(
+                f"{filepath.name}: field 'word_count_policy' — must be one of ['computed', 'external'], "
+                f"got '{word_count_policy}'"
+            )
+        else:
+            if word_count_policy == "external":
+                reason = fm.get("word_count_override_reason")
+                if not isinstance(reason, str) or len(reason.strip()) < 20:
+                    errors.append(
+                        f"{filepath.name}: field 'word_count_override_reason' — required (min 20 chars) "
+                        "when word_count_policy is 'external'"
+                    )
+            else:
+                computed_word_count = _compute_body_word_count(filepath.read_text(encoding="utf-8"))
+                if declared_word_count != computed_word_count:
+                    errors.append(
+                        f"{filepath.name}: field 'word_count' — declared {declared_word_count} does not "
+                        f"match computed body word count {computed_word_count}"
+                    )
+                reading_time = fm.get("reading_time")
+                expected = _expected_reading_time(computed_word_count)
+                if isinstance(reading_time, str) and reading_time != expected:
+                    errors.append(
+                        f"{filepath.name}: field 'reading_time' — declared '{reading_time}' does not "
+                        f"match expected '{expected}' for computed word_count {computed_word_count}"
+                    )
 
     return errors
 

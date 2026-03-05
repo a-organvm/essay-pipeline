@@ -1,0 +1,20 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+REPO_ROOT="$(git rev-parse --show-toplevel)"
+CHANGED="$(git diff --cached --name-only)"
+
+if ! printf '%s\n' "$CHANGED" | grep -Eq '^(src/|tests/|pyproject\.toml|\.github/workflows/)'; then
+    exit 0
+fi
+
+echo "[pre-commit] essay-pipeline checks"
+
+if [ -x "$REPO_ROOT/.venv/bin/python" ]; then
+    PY="$REPO_ROOT/.venv/bin/python"
+else
+    PY="python3"
+fi
+
+"$PY" -m ruff check src tests
+"$PY" -m pytest tests -q

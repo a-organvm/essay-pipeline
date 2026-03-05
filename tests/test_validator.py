@@ -158,6 +158,105 @@ class TestValidateEssay:
         assert any("tags" in e and "pattern" in e for e in errors)
 
 
+class TestWordCountIntegrity:
+    @staticmethod
+    def _write_essay(
+        tmp_path,
+        *,
+        body_words: int,
+        declared_word_count: int,
+        reading_time: str,
+        word_count_policy: str | None = None,
+        word_count_override_reason: str | None = None,
+    ):
+        body = " ".join(["word"] * body_words)
+        lines = [
+            "---",
+            "layout: essay",
+            'title: "Word Count Integrity Test Essay"',
+            'author: "@4444J99"',
+            'date: "2026-03-05"',
+            "tags: [governance, testing]",
+            'category: "meta-system"',
+            'excerpt: "This is a sufficiently long excerpt for validator testing of word count integrity behavior."',
+            'portfolio_relevance: "MEDIUM"',
+            "related_repos:",
+            "  - organvm-v-logos/essay-pipeline",
+            f'reading_time: "{reading_time}"',
+            f"word_count: {declared_word_count}",
+            "references: []",
+        ]
+        if word_count_policy:
+            lines.append(f"word_count_policy: {word_count_policy}")
+        if word_count_override_reason:
+            lines.append(f'word_count_override_reason: "{word_count_override_reason}"')
+        lines.extend(["---", "", body, ""])
+
+        p = tmp_path / "word-count-test.md"
+        p.write_text("\n".join(lines), encoding="utf-8")
+        return p
+
+    def test_computed_policy_mismatch_rejected(self, tmp_path):
+        schema = get_schema()
+        p = self._write_essay(
+            tmp_path,
+            body_words=600,
+            declared_word_count=650,
+            reading_time="2 min",
+        )
+        errors = validate_essay(p, schema)
+        assert any("does not match computed body word count" in e for e in errors)
+
+    def test_computed_policy_reading_time_mismatch_rejected(self, tmp_path):
+        schema = get_schema()
+        p = self._write_essay(
+            tmp_path,
+            body_words=600,
+            declared_word_count=600,
+            reading_time="5 min",
+        )
+        errors = validate_essay(p, schema)
+        assert any("does not match expected" in e and "reading_time" in e for e in errors)
+
+    def test_computed_policy_match_passes(self, tmp_path):
+        schema = get_schema()
+        p = self._write_essay(
+            tmp_path,
+            body_words=600,
+            declared_word_count=600,
+            reading_time="2 min",
+        )
+        errors = validate_essay(p, schema)
+        assert errors == []
+
+    def test_external_policy_requires_reason(self, tmp_path):
+        schema = get_schema()
+        p = self._write_essay(
+            tmp_path,
+            body_words=100,
+            declared_word_count=5000,
+            reading_time="20 min",
+            word_count_policy="external",
+        )
+        errors = validate_essay(p, schema)
+        assert any("word_count_override_reason" in e for e in errors)
+
+    def test_external_policy_allows_mismatch_with_reason(self, tmp_path):
+        schema = get_schema()
+        p = self._write_essay(
+            tmp_path,
+            body_words=100,
+            declared_word_count=5000,
+            reading_time="20 min",
+            word_count_policy="external",
+            word_count_override_reason=(
+                "This post summarizes a larger dissertation corpus and reports aggregate chapter words."
+            ),
+        )
+        errors = validate_essay(p, schema)
+        assert errors == []
+
+
 # --- validate_field additional coverage ------------------------------------
 
 

@@ -49,7 +49,6 @@ def build_system_prompt(
     a valid essay that passes schema validation.
     """
     # Extract schema constraints
-    required = schema.get("required_fields", {})
     categories = list(
         category_taxonomy.get("categories", {}).keys()
     )
@@ -117,9 +116,9 @@ def build_user_prompt(
     source_data = suggestion.get("source_data", {})
 
     prompt_parts = [
-        f"Write a complete essay based on the following topic suggestion.",
-        f"",
-        f"## Topic",
+        "Write a complete essay based on the following topic suggestion.",
+        "",
+        "## Topic",
         f"Type: {suggestion_type}",
         f"Suggested title direction: {title_hint}",
         f"Rationale: {rationale}",
