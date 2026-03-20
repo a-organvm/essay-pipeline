@@ -1,0 +1,18 @@
+schema_version: '1.0'
+repo: essay-pipeline
+organ: V
+display_name: "Essay Pipeline — Topic suggestion, drafting, review, and publishing workflow"
+
+delivery:
+- platform: python_library
+  status: live
+  priority: high
+  notes: "Pipeline for essay lifecycle from topic suggestion to publication"
+  next_action: "Maintain pipeline efficiency as essay volume increases"
+
+content:
+- platform: docs_site
+  status: not_started
+  priority: medium
+  notes: "Pipeline stages, topic suggestion format, review workflow"
+  next_action: "Document essay lifecycle stages"
