@@ -1,16 +1,15 @@
-name: Essay Pipeline CI
+name: CI
 
 on:
   push:
-    branches: [ main, master, develop ]
+    branches: [main, develop]
   pull_request:
-    branches: [ main, master, develop ]
+    branches: [main, develop]
   workflow_dispatch:
 
 jobs:
   test:
     runs-on: ubuntu-latest
-    continue-on-error: true
     steps:
       - name: Checkout essay-pipeline
         uses: actions/checkout@v6
@@ -27,18 +26,10 @@ jobs:
           python-version: "3.12"
 
       - name: Install dependencies
-        run: pip install pyyaml pytest ruff
+        run: pip install -e ".[dev]"
 
       - name: Lint with ruff
-        run: ruff check src/ tests/ || echo "::warning::Ruff issues detected"
+        run: ruff check src/ tests/
 
       - name: Run tests
-        run: pytest tests/ -v
-
-      - name: Validate structure
-        run: |
-          test -f "README.md" && echo "::notice::README.md found" || echo "::warning::No README.md found"
-          test -f "LICENSE" && echo "::notice::License file found" || echo "::warning::No license file found"
-
-      - name: Success
-        run: echo "::notice::Essay Pipeline CI passed"
+        run: pytest tests/ -v --tb=short
