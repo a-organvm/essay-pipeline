@@ -14,11 +14,11 @@ jobs:
       - name: Checkout essay-pipeline
         uses: actions/checkout@v6
 
-      - name: Checkout editorial-standards
+      - name: Checkout editorial-standards (sibling for schema resolution)
         uses: actions/checkout@v6
         with:
           repository: organvm-v-logos/editorial-standards
-          path: vendor/editorial-standards
+          path: ../editorial-standards
 
       - name: Set up Python
         uses: actions/setup-python@v5
