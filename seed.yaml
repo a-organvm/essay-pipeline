@@ -56,6 +56,18 @@ consumes:
     trigger:
       schedule: "0 6 * * 1"
     description: "Scans all 8 orgs for essay-worthy events"
+  - type: process-documentation
+    source:
+      organ: ORGAN-III
+    description: "Client engagement narratives and consulting case studies for public process essays"
+  - type: research-discourse
+    source:
+      organ: ORGAN-I
+    description: "Theoretical research outputs (SGO program, dissertations) for public discourse transformation"
+  - type: governance-documentation
+    source:
+      organ: ORGAN-IV
+    description: "Governance decisions and orchestration changes for constitutional documentation essays"
 
 subscriptions:
   - event: promotion.completed
